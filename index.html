@@ -2,8 +2,8 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Flashcard Extreme - Mobile Friendly</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🚀 Flashcard Extreme - V2</title>
     <style>
         :root {
             --bg: #f0f4f8; --container-bg: #ffffff; --text-main: #333333;
@@ -16,53 +16,46 @@
             --text-sub: #b0b0b0; --card-front: #2d2d2d; --shadow: rgba(0,0,0,0.3);
             --border: #444444;
         }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text-main); transition: 0.3s; touch-action: manipulation; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text-main); transition: 0.3s; -webkit-tap-highlight-color: transparent; }
         .container { max-width: 600px; margin: auto; }
         .hidden { display: none !important; }
+
+        /* --- FOLDER & DECK ITEMS --- */
+        .folder-wrapper { background: var(--container-bg); border-radius: 12px; margin-bottom: 12px; border-left: 8px solid var(--folder-bg); box-shadow: 0 4px 6px var(--shadow); overflow: hidden; }
+        .folder-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: bold; }
+        .folder-content { padding: 8px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.02); }
         
-        /* Rank Colors */
-        .rank-2 { color: #5dade2 !important; }
-        .rank-3 { color: #52be80 !important; }
-        .rank-5 { color: #f4d03f !important; }
-        .rank-7 { color: #eb984e !important; }
-        .rank-10 { color: #ec7063 !important; }
-        .rank-15 { color: #bb8fce !important; }
-        .rank-20 { background: linear-gradient(to right, #ff5e5e, #f9d423, #6cfd9f, #6ae9ff, #c392ff, #ff5e5e); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: rainbow 2s linear infinite; }
+        .card-item { 
+            background: var(--container-bg); padding: 12px 15px; border-radius: 10px; 
+            margin-bottom: 8px; display: flex; justify-content: space-between; 
+            align-items: center; box-shadow: 0 2px 5px var(--shadow); 
+            border-left: 5px solid var(--primary); position: relative;
+            user-select: none; /* กันคลุมดำเวลาเบิ้ลคลิก */
+        }
+
+        /* --- RANK COLORS --- */
+        .rank-2 { color: #5dade2 !important; } .rank-3 { color: #52be80 !important; }
+        .rank-5 { color: #f4d03f !important; } .rank-10 { color: #ec7063 !important; }
+        .rank-20 { background: linear-gradient(to right, #ff5e5e, #f9d423, #6cfd9f, #6ae9ff, #c392ff, #ff5e5e); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: rainbow 2s linear infinite; font-weight: bold; }
         @keyframes rainbow { to { background-position: 200% center; } }
 
-        /* Folders & Drag Drop */
-        .folder-wrapper { background: var(--container-bg); border-radius: 12px; margin-bottom: 15px; border-left: 8px solid var(--folder-bg); box-shadow: 0 4px 6px var(--shadow); position: relative; }
-        .folder-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: bold; }
-        .folder-content { padding: 10px; min-height: 40px; border-top: 1px solid var(--border); }
+        /* --- MODAL / MENU --- */
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-content { background: var(--container-bg); padding: 20px; border-radius: 15px; width: 85%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .menu-btn { width: 100%; text-align: left; padding: 15px; margin-bottom: 8px; border-radius: 8px; background: var(--bg); color: var(--text-main); font-size: 16px; border: 1px solid var(--border); font-weight: bold; }
         
-        /* Dragging States */
-        .deck-dragging { opacity: 0.4; border: 2px dashed var(--primary); }
-        .drag-over { background: rgba(74, 144, 226, 0.1) !important; border: 2px solid var(--primary) !important; }
-
-        /* Stats Bar */
-        .stats-bar { display: flex; justify-content: space-around; background: var(--container-bg); padding: 15px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px var(--shadow); align-items: center; }
-        .stat-item { text-align: center; flex: 1; }
-        .stat-value { display: block; font-size: 26px; font-weight: bold; color: var(--primary); }
-        .stat-label { font-size: 10px; color: var(--text-sub); text-transform: uppercase; }
-
-        /* Card Styles */
-        .card-item { background: var(--container-bg); padding: 15px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px var(--shadow); border-left: 5px solid var(--primary); cursor: grab; user-select: none; touch-action: none; }
-        .card-item:active { cursor: grabbing; }
+        .btn-dots { background: none; color: var(--text-sub); font-size: 20px; padding: 5px 15px; border-radius: 50%; }
+        .btn-dots:active { background: rgba(0,0,0,0.1); }
+        .theme-switch { position: fixed; top: 15px; right: 15px; background: var(--container-bg); border: 2px solid var(--primary); color: var(--primary); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; z-index: 1000; }
         
-        /* Flashcard View */
-        .flashcard { width: 100%; height: 300px; perspective: 1000px; cursor: pointer; margin-bottom: 20px; }
+        .stats-bar { display: flex; justify-content: space-around; background: var(--container-bg); padding: 15px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px var(--shadow); }
+        .stat-value { display: block; font-size: 24px; font-weight: bold; color: var(--primary); }
+        .flashcard { width: 100%; height: 280px; perspective: 1000px; margin-bottom: 20px; }
         .flashcard-inner { position: relative; width: 100%; height: 100%; transition: transform 0.4s; transform-style: preserve-3d; }
         .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 20px; font-size: 32px; padding: 30px; text-align: center; border: 4px solid var(--container-bg); box-shadow: 0 10px 25px var(--shadow); box-sizing: border-box; }
-        .card-front { background: var(--card-front); color: var(--text-main); }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 20px; font-size: 28px; padding: 20px; text-align: center; border: 4px solid var(--container-bg); box-sizing: border-box; }
         .card-back { background: var(--primary); color: white; transform: rotateY(180deg); }
-
-        button { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .btn-main { background: var(--primary); color: white; width: 100%; padding: 15px; margin-bottom: 10px; }
-        .btn-success { background: var(--success); color: white; flex: 1; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-edit { background: var(--border); color: var(--text-main); margin-right: 5px; }
-        .theme-switch { position: fixed; top: 20px; right: 20px; background: var(--container-bg); border: 2px solid var(--primary); color: var(--primary); width: 45px; height: 45px; border-radius: 50%; z-index: 1000; cursor: pointer; font-size: 20px; }
+        .btn-main { background: var(--primary); color: white; width: 100%; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: none; font-weight: bold; cursor: pointer; }
         input { width: 100%; padding: 12px; margin-bottom: 10px; border: 2px solid var(--border); border-radius: 8px; background: var(--container-bg); color: var(--text-main); box-sizing: border-box; }
     </style>
 </head>
@@ -79,25 +72,45 @@
             <button class="btn-main" style="flex:1; background:var(--folder-bg); color:#333" onclick="showCreateDeck()">+ หมวดหมู่</button>
         </div>
         <div id="main-list"></div>
+        <p style="text-align:center; font-size:12px; color:var(--text-sub);">💡 กด 2 ครั้งที่หมวดหมู่เพื่อเริ่มเรียน</p>
+    </div>
+
+    <div id="modal-menu" class="modal-overlay hidden" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 id="modal-title" style="margin-top:0">จัดการหมวดหมู่</h3>
+            <button class="menu-btn" onclick="startStudyFromMenu()">📖 เริ่มเรียน (กดเบิ้ลที่หน้าหลักได้)</button>
+            <button class="menu-btn" onclick="editFromMenu()">✏️ แก้ไขการ์ด</button>
+            <button class="menu-btn" onclick="openMoveMenu()">📦 ย้ายเข้าโฟลเดอร์...</button>
+            <button class="menu-btn" style="color:var(--danger)" onclick="deleteFromMenu()">🗑️ ลบหมวดหมู่</button>
+            <button class="btn-main" style="background:var(--border); color:var(--text-main); margin-top:10px" onclick="closeModal()">ยกเลิก</button>
+        </div>
+    </div>
+
+    <div id="modal-move" class="modal-overlay hidden" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3>เลือกโฟลเดอร์เป้าหมาย</h3>
+            <div id="folder-options" style="max-height: 300px; overflow-y: auto;"></div>
+            <button class="btn-main" style="background:var(--border); color:var(--text-main); margin-top:10px" onclick="closeModal()">ยกเลิก</button>
+        </div>
     </div>
 
     <div id="view-editor" class="hidden">
-        <button onclick="showDashboard()" style="margin-bottom:15px; background:var(--border);">← กลับ</button>
+        <button onclick="showDashboard()" style="margin-bottom:15px; background:var(--border); padding:8px 15px; border-radius:5px; border:none;">← กลับ</button>
         <h2 id="edit-deck-title"></h2>
         <div style="background: var(--container-bg); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 2px dashed var(--primary);">
-            <input type="text" id="new-q" placeholder="คำถาม (Enter)">
-            <input type="text" id="new-a" placeholder="คำตอบ (Enter บันทึก)">
-            <button class="btn-success" style="width: 100%" onclick="addCard()">เพิ่มการ์ด</button>
+            <input type="text" id="new-q" placeholder="คำถาม">
+            <input type="text" id="new-a" placeholder="คำตอบ">
+            <button style="background:var(--success); color:white; width:100%; padding:12px; border-radius:8px; border:none; font-weight:bold;" onclick="addCard()">เพิ่มการ์ด</button>
         </div>
         <div id="card-list"></div>
     </div>
 
     <div id="view-study" class="hidden">
         <div class="stats-bar">
-            <button onclick="showDashboard()" style="background:var(--border); font-size:12px;">หยุด</button>
-            <div class="stat-item"><span class="stat-value" id="stat-cards-left">0</span><span class="stat-label">เหลือ</span></div>
-            <div class="stat-item"><span class="stat-value" id="stat-card-streak">0</span><span class="stat-label">Streak</span></div>
-            <div class="stat-item"><span class="stat-value" id="stat-deck-streak">0</span><span class="stat-label">Perfect</span></div>
+            <button onclick="showDashboard()" style="background:var(--border); font-size:12px; padding:5px 10px; border-radius:5px; border:none;">หยุด</button>
+            <div class="stat-item" style="text-align:center"><span class="stat-value" id="stat-cards-left">0</span><span style="font-size:10px; color:var(--text-sub)">เหลือ</span></div>
+            <div class="stat-item" style="text-align:center"><span class="stat-value" id="stat-card-streak">0</span><span style="font-size:10px; color:var(--text-sub)">Streak</span></div>
+            <div class="stat-item" style="text-align:center"><span class="stat-value" id="stat-deck-streak">0</span><span style="font-size:10px; color:var(--text-sub)">Perfect</span></div>
         </div>
         <div class="flashcard" id="study-card" onclick="this.classList.toggle('flipped')">
             <div class="flashcard-inner">
@@ -106,22 +119,26 @@
             </div>
         </div>
         <div style="display:flex; gap:15px;">
-            <button class="btn-danger" style="flex:1" onclick="answer(false)">❌ ผิด</button>
-            <button class="btn-success" style="flex:1" onclick="answer(true)">✅ ถูก</button>
+            <button style="background:var(--danger); color:white; flex:1; padding:15px; border-radius:10px; border:none; font-weight:bold" onclick="answer(false)">❌ ผิด</button>
+            <button style="background:var(--success); color:white; flex:1; padding:15px; border-radius:10px; border:none; font-weight:bold" onclick="answer(true)">✅ ถูก</button>
         </div>
+        <button style="background:#6c757d; color:white; width:100%; margin-top:15px; padding:10px; border-radius:8px; border:none; font-weight:bold" onclick="undo()">↩ Undo</button>
     </div>
 </div>
 
 <script>
+    // ใช้ Key ใหม่เพื่อไม่ให้ตีกับข้อมูลเก่า (v4)
     let appData = JSON.parse(localStorage.getItem('flash_extreme_v4')) || { folders: [], decks: {} };
-    let currentDeckId = null, studyQueue = [], currentCardStreak = 0, isCurrentRunPerfect = true;
+    let currentDeckId = null, studyQueue = [], failedCards = [], historyStack = [];
+    let currentCardStreak = 0, isCurrentRunPerfect = true;
+    let activeDeckName = null;
 
     function save() { localStorage.setItem('flash_extreme_v4', JSON.stringify(appData)); renderDashboard(); }
 
     function toggleTheme() {
-        const theme = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-        document.body.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
+        const t = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', t);
+        localStorage.setItem('theme', t);
     }
     if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
 
@@ -131,243 +148,102 @@
         if (val >= 2) return 'rank-2'; return '';
     }
 
+    // --- RENDER DASHBOARD ---
     function renderDashboard() {
         const list = document.getElementById('main-list');
         list.innerHTML = '';
 
+        // Folders
         appData.folders.forEach((folder, fIdx) => {
-            let decksHtml = folder.decks.map(dName => renderDeckItem(dName)).join('');
+            let decksHtml = (folder.decks || []).map(dName => renderDeckItem(dName)).join('');
             list.innerHTML += `
-                <div class="folder-wrapper" 
-                     ondragover="allowDrop(event)" 
-                     ondrop="dropToFolder(event, ${fIdx})"
-                     data-folder-idx="${fIdx}">
+                <div class="folder-wrapper">
                     <div class="folder-header" onclick="toggleFolder(${fIdx})">
                         <span>${folder.isOpen ? '📂' : '📁'} ${folder.name}</span>
-                        <div>
-                            <button class="btn-edit" style="padding:4px 8px; font-size:10px;" onclick="event.stopPropagation(); renameFolder(${fIdx})">แก้ไข</button>
-                            <button class="btn-danger" style="padding:4px 8px; font-size:10px;" onclick="event.stopPropagation(); deleteFolder(${fIdx})">ลบ</button>
+                        <div onclick="event.stopPropagation()">
+                            <button style="font-size:10px; background:var(--border); padding:3px 7px; border-radius:4px; border:none" onclick="renameFolder(${fIdx})">แก้</button>
+                            <button style="font-size:10px; background:var(--danger); color:white; padding:3px 7px; border-radius:4px; border:none" onclick="deleteFolder(${fIdx})">ลบ</button>
                         </div>
                     </div>
-                    <div class="folder-content ${folder.isOpen ? '' : 'hidden'}">${decksHtml}</div>
+                    <div class="folder-content ${folder.isOpen ? '' : 'hidden'}">${decksHtml || '<small style="color:#888; padding:10px; display:block">ไม่มีหมวดหมู่ข้างใน</small>'}</div>
                 </div>`;
         });
 
+        // Standalone Decks
         const inFolders = appData.folders.flatMap(f => f.decks);
         const standalones = Object.keys(appData.decks).filter(d => !inFolders.includes(d));
-        list.innerHTML += `<div id="standalone-area" ondragover="allowDrop(event)" ondrop="dropToStandalone(event)">
-            <h3 style="margin: 15px 0 10px 5px">📦 ทั่วไป</h3>
+        list.innerHTML += `<div style="margin-top:20px;">
+            <h3 style="margin-left:5px; font-size:16px; color:var(--text-sub)">📦 ทั่วไป</h3>
             ${standalones.map(dName => renderDeckItem(dName)).join('')}
         </div>`;
-        
-        setupMobileDrag(); // เปิดใช้งานระบบลากสำหรับมือถือ
     }
 
+    // ฟังก์ชันสร้างหน้าตา Deck พร้อมระบบ Double Click
     function renderDeckItem(name) {
         const deck = appData.decks[name];
         if (!deck) return '';
         const rank = getRankClass(deck.perfectStreak);
-        return `<div class="card-item draggable-deck" 
-                     draggable="true" 
-                     ondragstart="dragDeck(event, '${name}')"
-                     data-name="${name}">
-            <div><strong class="${rank}">${name}</strong><br><small>${deck.cards.length} ใบ | 🔥 Perfect: ${deck.perfectStreak}</small></div>
-            <div style="display:flex; gap:5px;">
-                <button class="btn-success" onclick="startStudy('${name}')">เรียน</button>
-                <button onclick="showEditor('${name}')" style="background:var(--border)">แก้</button>
-                <button class="btn-danger" onclick="deleteDeck('${name}')">ลบ</button>
+        return `<div class="card-item" ondblclick="startStudy('${name}', true)">
+            <div style="flex:1">
+                <strong class="${rank}">${name}</strong><br>
+                <small style="color:var(--text-sub)">${deck.cards.length} ใบ | 🔥 Perfect: ${deck.perfectStreak}</small>
             </div>
+            <button class="btn-dots" onclick="event.stopPropagation(); openDeckMenu('${name}')">⋮</button>
         </div>`;
     }
 
-    /* --- Desktop Drag & Drop --- */
-    function dragDeck(e, name) { e.dataTransfer.setData("deckName", name); e.target.classList.add('deck-dragging'); }
-    function allowDrop(e) { e.preventDefault(); }
-    function dropToFolder(e, fIdx) {
-        e.preventDefault();
-        const name = e.dataTransfer.getData("deckName");
-        moveDeckToFolder(name, fIdx);
-    }
-    function dropToStandalone(e) {
-        e.preventDefault();
-        const name = e.dataTransfer.getData("deckName");
-        moveDeckToStandalone(name);
+    // --- MODAL SYSTEM ---
+    function openDeckMenu(name) {
+        activeDeckName = name;
+        document.getElementById('modal-title').innerText = name;
+        document.getElementById('modal-menu').classList.remove('hidden');
     }
 
-    /* --- Mobile Touch Drag & Drop (Logic ใหม่) --- */
-    function setupMobileDrag() {
-        const draggables = document.querySelectorAll('.draggable-deck');
-        const folders = document.querySelectorAll('.folder-wrapper');
-        const standaloneArea = document.getElementById('standalone-area');
+    function closeModal() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden')); }
+    function startStudyFromMenu() { closeModal(); startStudy(activeDeckName, true); }
+    function editFromMenu() { closeModal(); showEditor(activeDeckName); }
+    function deleteFromMenu() { if(confirm('ลบหมวดหมู่?')) { closeModal(); deleteDeck(activeDeckName); } }
 
-        draggables.forEach(el => {
-            el.ontouchstart = (e) => {
-                const touch = e.touches[0];
-                const shiftX = touch.clientX - el.getBoundingClientRect().left;
-                const shiftY = touch.clientY - el.getBoundingClientRect().top;
-                
-                let clone = el.cloneNode(true);
-                clone.style.position = 'fixed';
-                clone.style.width = el.offsetWidth + 'px';
-                clone.style.zIndex = 1000;
-                clone.style.opacity = '0.8';
-                clone.style.pointerEvents = 'none';
-                document.body.appendChild(clone);
-                
-                el.classList.add('deck-dragging');
-
-                const moveAt = (pageX, pageY) => {
-                    clone.style.left = pageX - shiftX + 'px';
-                    clone.style.top = pageY - shiftY + 'px';
-                };
-
-                el.ontouchmove = (e) => {
-                    moveAt(e.touches[0].clientX, e.touches[0].clientY);
-                    
-                    // หา Folder ที่นิ้วลากผ่าน
-                    folders.forEach(f => {
-                        const rect = f.getBoundingClientRect();
-                        if (e.touches[0].clientX > rect.left && e.touches[0].clientX < rect.right &&
-                            e.touches[0].clientY > rect.top && e.touches[0].clientY < rect.bottom) {
-                            f.classList.add('drag-over');
-                        } else {
-                            f.classList.remove('drag-over');
-                        }
-                    });
-                };
-
-                el.ontouchend = (e) => {
-                    const touch = e.changedTouches[0];
-                    document.body.removeChild(clone);
-                    el.classList.remove('deck-dragging');
-                    
-                    let dropped = false;
-                    folders.forEach(f => {
-                        const rect = f.getBoundingClientRect();
-                        if (touch.clientX > rect.left && touch.clientX < rect.right &&
-                            touch.clientY > rect.top && touch.clientY < rect.bottom) {
-                            const fIdx = f.getAttribute('data-folder-idx');
-                            moveDeckToFolder(el.getAttribute('data-name'), fIdx);
-                            dropped = true;
-                        }
-                        f.classList.remove('drag-over');
-                    });
-
-                    // ถ้าลากกลับมาพื้นที่ทั่วไป
-                    const sRect = standaloneArea.getBoundingClientRect();
-                    if (!dropped && touch.clientX > sRect.left && touch.clientX < sRect.right &&
-                        touch.clientY > sRect.top && touch.clientY < sRect.bottom) {
-                        moveDeckToStandalone(el.getAttribute('data-name'));
-                    }
-                };
-            };
+    function openMoveMenu() {
+        document.getElementById('modal-menu').classList.add('hidden');
+        const optCont = document.getElementById('folder-options');
+        optCont.innerHTML = `<button class="menu-btn" onclick="moveToFolder(-1)">📤 เอาออกจากโฟลเดอร์ (ทั่วไป)</button>`;
+        appData.folders.forEach((f, i) => {
+            optCont.innerHTML += `<button class="menu-btn" onclick="moveToFolder(${i})">📁 เข้าไปที่: ${f.name}</button>`;
         });
+        document.getElementById('modal-move').classList.remove('hidden');
     }
 
-    /* --- Common Movement Logic --- */
-    function moveDeckToFolder(name, fIdx) {
-        if (!name) return;
-        appData.folders.forEach(f => f.decks = f.decks.filter(d => d !== name));
-        appData.folders[fIdx].decks.push(name);
-        save();
-    }
-    function moveDeckToStandalone(name) {
-        if (!name) return;
-        appData.folders.forEach(f => f.decks = f.decks.filter(d => d !== name));
-        save();
+    function moveToFolder(fIdx) {
+        appData.folders.forEach(f => f.decks = (f.decks || []).filter(d => d !== activeDeckName));
+        if (fIdx !== -1) appData.folders[fIdx].decks.push(activeDeckName);
+        save(); closeModal();
     }
 
-    // ฟังก์ชันอื่นๆ ยังเหมือนเดิม (Study, Editor, etc.)
-    function startStudy(id) {
-        if (appData.decks[id].cards.length === 0) return alert("ไม่มีการ์ด!");
-        currentDeckId = id;
-        currentCardStreak = 0;
-        isCurrentRunPerfect = true;
-        initRound();
-        document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
-        document.getElementById('view-study').classList.remove('hidden');
-    }
-
-    function initRound() {
-        studyQueue = [...appData.decks[currentDeckId].cards].sort(() => Math.random() - 0.5);
-        showNextCard();
-    }
-
-    function showNextCard() {
-        if (studyQueue.length === 0) {
-            if (isCurrentRunPerfect) { appData.decks[currentDeckId].perfectStreak++; save(); }
-            initRound(); return;
-        }
-        document.getElementById('study-card').classList.remove('flipped');
-        updateStudyUI();
-        setTimeout(() => {
-            document.getElementById('study-front').innerText = studyQueue[0].q;
-            document.getElementById('study-back').innerText = studyQueue[0].a;
-        }, 150);
-    }
-
-    function answer(correct) {
-        const deck = appData.decks[currentDeckId];
-        if (correct) {
-            currentCardStreak++;
-            studyQueue.shift();
-        } else {
-            currentCardStreak = 0;
-            isCurrentRunPerfect = false;
-            deck.perfectStreak = 0; 
-            save();
-            let wrongCard = studyQueue.shift();
-            studyQueue.push(wrongCard);
-        }
-        showNextCard();
-    }
-
-    function updateStudyUI() {
-        const perf = appData.decks[currentDeckId].perfectStreak;
-        document.getElementById('stat-cards-left').innerText = studyQueue.length;
-        document.getElementById('stat-card-streak').innerText = currentCardStreak;
-        document.getElementById('stat-deck-streak').innerText = perf;
-        document.getElementById('stat-deck-streak').className = 'stat-value ' + getRankClass(perf);
-    }
-
-    function showEditor(id) {
-        currentDeckId = id;
-        document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
-        document.getElementById('view-editor').classList.remove('hidden');
-        document.getElementById('edit-deck-title').innerText = id;
-        renderCards();
-    }
-
-    function renderCards() {
-        const list = document.getElementById('card-list'); list.innerHTML = '';
-        appData.decks[currentDeckId].cards.forEach((c, i) => {
-            list.innerHTML += `<div class="card-item" style="cursor:default">
-                <div style="flex:1">
-                    <div contenteditable="true" onblur="updateC(${i},'q',this.innerText)">${c.q}</div>
-                    <div contenteditable="true" onblur="updateC(${i},'a',this.innerText)" style="color:var(--text-sub)">${c.a}</div>
-                </div>
-                <button class="btn-danger" onclick="deleteCard(${i})">ลบ</button>
-            </div>`;
-        });
-    }
-
+    // --- CORE LOGIC ---
+    function createFolder() { const n = prompt("ชื่อโฟลเดอร์:"); if(n) { appData.folders.push({name:n, decks:[], isOpen:true}); save(); }}
+    function toggleFolder(i) { appData.folders[i].isOpen = !appData.folders[i].isOpen; save(); }
+    function renameFolder(i) { const n = prompt("ชื่อโฟลเดอร์:", appData.folders[i].name); if(n) { appData.folders[i].name = n; save(); }}
+    function deleteFolder(i) { if(confirm('ลบโฟลเดอร์? หมวดหมู่ข้างในจะเด้งออกมาที่ทั่วไป')) { appData.folders.splice(i, 1); save(); }}
+    function showCreateDeck() { const n = prompt("ชื่อหมวดหมู่:"); if (n && !appData.decks[n]) { appData.decks[n] = { cards: [], perfectStreak: 0 }; save(); } }
+    function deleteDeck(n) { delete appData.decks[n]; appData.folders.forEach(f=>f.decks=f.decks.filter(d=>d!==n)); save(); }
+    
+    function showDashboard() { document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden')); document.getElementById('view-dashboard').classList.remove('hidden'); renderDashboard(); }
+    function showEditor(id) { currentDeckId = id; document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden')); document.getElementById('view-editor').classList.remove('hidden'); document.getElementById('edit-deck-title').innerText = id; renderCards(); }
+    function renderCards() { const list = document.getElementById('card-list'); list.innerHTML = ''; appData.decks[currentDeckId].cards.forEach((c, i) => { list.innerHTML += `<div class="card-item" style="cursor:default"><div style="flex:1"><div contenteditable="true" onblur="updateC(${i},'q',this.innerText)">${c.q}</div><div contenteditable="true" onblur="updateC(${i},'a',this.innerText)" style="color:var(--text-sub)">${c.a}</div></div><button style="background:var(--danger); color:white; padding:5px 10px; border-radius:5px; border:none" onclick="deleteCard(${i})">ลบ</button></div>`; }); }
     function updateC(i,f,v) { appData.decks[currentDeckId].cards[i][f] = v; save(); }
     function deleteCard(i) { appData.decks[currentDeckId].cards.splice(i, 1); save(); renderCards(); }
-    function addCard() {
-        const q = document.getElementById('new-q'), a = document.getElementById('new-a');
-        if (q.value && a.value) {
-            appData.decks[currentDeckId].cards.push({ q: q.value, a: a.value });
-            save(); renderCards(); q.value = ''; a.value = '';
-        }
-    }
+    function addCard() { const q = document.getElementById('new-q'), a = document.getElementById('new-a'); if (q.value && a.value) { appData.decks[currentDeckId].cards.push({ q: q.value, a: a.value }); save(); renderCards(); q.value = ''; a.value = ''; q.focus(); } }
+    
+    function startStudy(id, first) { if (appData.decks[id].cards.length === 0) return alert("ไม่มีการ์ด!"); currentDeckId = id; studyQueue = [...appData.decks[id].cards].sort(() => Math.random() - 0.5); failedCards = []; historyStack = []; if (first) isCurrentRunPerfect = true; document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden')); document.getElementById('view-study').classList.remove('hidden'); nextStudyCard(); }
+    function nextStudyCard() { if (studyQueue.length === 0) { if (failedCards.length > 0) { studyQueue = [...failedCards].sort(() => Math.random() - 0.5); failedCards = []; nextStudyCard(); } else { handleAutoRestart(); } return; } document.getElementById('study-card').classList.remove('flipped'); updateStatsUI(); setTimeout(() => { document.getElementById('study-front').innerText = studyQueue[0].q; document.getElementById('study-back').innerText = studyQueue[0].a; }, 150); }
+    function answer(correct) { historyStack.push({ queue: [...studyQueue], failed: [...failedCards], streak: currentCardStreak, perfect: appData.decks[currentDeckId].perfectStreak, isPerfect: isCurrentRunPerfect }); const c = studyQueue.shift(); if (correct) { currentCardStreak++; } else { currentCardStreak = 0; isCurrentRunPerfect = false; appData.decks[currentDeckId].perfectStreak = 0; failedCards.push(c); save(); } nextStudyCard(); }
+    function undo() { if (!historyStack.length) return; const last = historyStack.pop(); studyQueue = last.queue; failedCards = last.failed; currentCardStreak = last.streak; appData.decks[currentDeckId].perfectStreak = last.perfect; isCurrentRunPerfect = last.isPerfect; save(); nextStudyCard(); }
+    function handleAutoRestart() { if (isCurrentRunPerfect) appData.decks[currentDeckId].perfectStreak++; save(); isCurrentRunPerfect = true; studyQueue = [...appData.decks[currentDeckId].cards].sort(() => Math.random() - 0.5); nextStudyCard(); }
+    function updateStatsUI() { const perf = appData.decks[currentDeckId].perfectStreak || 0; document.getElementById('stat-cards-left').innerText = studyQueue.length; document.getElementById('stat-card-streak').innerText = currentCardStreak; document.getElementById('stat-deck-streak').innerText = perf; document.getElementById('stat-deck-streak').className = 'stat-value ' + getRankClass(perf); }
 
-    function showDashboard() { document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden')); document.getElementById('view-dashboard').classList.remove('hidden'); renderDashboard(); }
-    function createFolder() { const n = prompt("ชื่อโฟลเดอร์:"); if(n) { appData.folders.push({name:n, decks:[], isOpen:true}); save(); }}
-    function renameFolder(i) { const n = prompt("ชื่อโฟลเดอร์ใหม่:", appData.folders[i].name); if(n) { appData.folders[i].name = n; save(); }}
-    function showCreateDeck() { const n = prompt("ชื่อหมวดหมู่:"); if(n && !appData.decks[n]) { appData.decks[n] = {cards:[], perfectStreak:0}; save(); }}
-    function deleteFolder(i) { if(confirm('ลบโฟลเดอร์?')) { appData.folders.splice(i,1); save(); }}
-    function deleteDeck(n) { if(confirm('ลบหมวดหมู่?')) { delete appData.decks[n]; appData.folders.forEach(f=>f.decks=f.decks.filter(d=>d!==n)); save(); }}
-    function toggleFolder(i) { appData.folders[i].isOpen = !appData.folders[i].isOpen; save(); }
+    document.getElementById('new-q').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('new-a').focus(); });
+    document.getElementById('new-a').addEventListener('keydown', (e) => { if (e.key === 'Enter') addCard(); });
 
     renderDashboard();
 </script>
