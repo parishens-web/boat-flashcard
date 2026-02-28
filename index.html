@@ -1,1 +1,317 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Flashcard Extreme - Infinite Loop Mastery</title>
+    <style>
+        :root {
+            --bg: #f0f4f8; --container-bg: #ffffff; --text-main: #333333;
+            --text-sub: #666666; --card-front: #ffffff; --primary: #4A90E2;
+            --success: #28a745; --danger: #dc3545; --shadow: rgba(0,0,0,0.05);
+            --border: #dddddd; --folder-bg: #f1c40f;
+        }
+        [data-theme="dark"] {
+            --bg: #121212; --container-bg: #1e1e1e; --text-main: #e0e0e0;
+            --text-sub: #b0b0b0; --card-front: #2d2d2d; --shadow: rgba(0,0,0,0.3);
+            --border: #444444;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text-main); transition: 0.3s; }
+        .container { max-width: 600px; margin: auto; }
+        .hidden { display: none !important; }
+        
+        /* Rank Colors */
+        .rank-2 { color: #5dade2 !important; }
+        .rank-3 { color: #52be80 !important; }
+        .rank-5 { color: #f4d03f !important; }
+        .rank-7 { color: #eb984e !important; }
+        .rank-10 { color: #ec7063 !important; }
+        .rank-15 { color: #bb8fce !important; }
+        .rank-20 { background: linear-gradient(to right, #ff5e5e, #f9d423, #6cfd9f, #6ae9ff, #c392ff, #ff5e5e); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: rainbow 2s linear infinite; }
+        @keyframes rainbow { to { background-position: 200% center; } }
 
+        /* Folders & Drag Drop */
+        .folder-wrapper { background: var(--container-bg); border-radius: 12px; margin-bottom: 15px; border-left: 8px solid var(--folder-bg); box-shadow: 0 4px 6px var(--shadow); }
+        .folder-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: bold; }
+        .folder-content { padding: 10px; min-height: 20px; border-top: 1px solid var(--border); }
+        .deck-dragging { opacity: 0.4; border: 2px dashed var(--primary); }
+
+        /* Stats Bar */
+        .stats-bar { display: flex; justify-content: space-around; background: var(--container-bg); padding: 15px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px var(--shadow); align-items: center; }
+        .stat-item { text-align: center; flex: 1; }
+        .stat-value { display: block; font-size: 26px; font-weight: bold; color: var(--primary); }
+        .stat-label { font-size: 10px; color: var(--text-sub); text-transform: uppercase; }
+
+        /* Card Styles */
+        .card-item { background: var(--container-bg); padding: 15px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px var(--shadow); border-left: 5px solid var(--primary); cursor: grab; }
+        .card-item:active { cursor: grabbing; }
+        .flashcard { width: 100%; height: 300px; perspective: 1000px; cursor: pointer; margin-bottom: 20px; }
+        .flashcard-inner { position: relative; width: 100%; height: 100%; transition: transform 0.4s; transform-style: preserve-3d; }
+        .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 20px; font-size: 32px; padding: 30px; text-align: center; border: 4px solid var(--container-bg); box-shadow: 0 10px 25px var(--shadow); box-sizing: border-box; }
+        .card-front { background: var(--card-front); color: var(--text-main); }
+        .card-back { background: var(--primary); color: white; transform: rotateY(180deg); }
+
+        button { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-main { background: var(--primary); color: white; width: 100%; padding: 15px; margin-bottom: 10px; }
+        .btn-success { background: var(--success); color: white; flex: 1; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-edit { background: var(--border); color: var(--text-main); margin-right: 5px; }
+        .btn-undo { background: #6c757d; color: white; width: 100%; margin-top: 15px; }
+        .theme-switch { position: fixed; top: 20px; right: 20px; background: var(--container-bg); border: 2px solid var(--primary); color: var(--primary); width: 45px; height: 45px; border-radius: 50%; z-index: 1000; cursor: pointer; font-size: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 2px solid var(--border); border-radius: 8px; background: var(--container-bg); color: var(--text-main); box-sizing: border-box; }
+    </style>
+</head>
+<body data-theme="light">
+
+<button class="theme-switch" onclick="toggleTheme()">🌓</button>
+
+<div class="container">
+    <h1 style="text-align:center;">🚀 Flashcard Extreme</h1>
+
+    <div id="view-dashboard">
+        <div style="display:flex; gap:10px;">
+            <button class="btn-main" style="flex:1" onclick="createFolder()">+ สร้างโฟลเดอร์</button>
+            <button class="btn-main" style="flex:1; background:var(--folder-bg); color:#333" onclick="showCreateDeck()">+ สร้างหมวดหมู่</button>
+        </div>
+        <div id="main-list"></div>
+    </div>
+
+    <div id="view-editor" class="hidden">
+        <button onclick="showDashboard()" style="margin-bottom:15px; background:var(--border);">← กลับ</button>
+        <h2 id="edit-deck-title"></h2>
+        <div style="background: var(--container-bg); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 2px dashed var(--primary);">
+            <input type="text" id="new-q" placeholder="คำถาม (Enter)">
+            <input type="text" id="new-a" placeholder="คำตอบ (Enter บันทึก)">
+            <button class="btn-success" style="width: 100%" onclick="addCard()">เพิ่มการ์ด</button>
+        </div>
+        <div id="card-list"></div>
+    </div>
+
+    <div id="view-study" class="hidden">
+        <div class="stats-bar">
+            <button onclick="showDashboard()" style="background:var(--border); font-size:12px;">หยุด</button>
+            <div class="stat-item"><span class="stat-value" id="stat-cards-left">0</span><span class="stat-label">เหลือ</span></div>
+            <div class="stat-item"><span class="stat-value" id="stat-card-streak">0</span><span class="stat-label">Streak</span></div>
+            <div class="stat-item"><span class="stat-value" id="stat-deck-streak">0</span><span class="stat-label">Perfect</span></div>
+        </div>
+        <div class="flashcard" id="study-card" onclick="this.classList.toggle('flipped')">
+            <div class="flashcard-inner">
+                <div class="card-face card-front" id="study-front"></div>
+                <div class="card-face card-back" id="study-back"></div>
+            </div>
+        </div>
+        <div style="display:flex; gap:15px;">
+            <button class="btn-danger" style="flex:1" onclick="answer(false)">❌ ผิด (วนใหม่)</button>
+            <button class="btn-success" style="flex:1" onclick="answer(true)">✅ ถูก</button>
+        </div>
+        <button class="btn-undo" style="width:100%" onclick="undo()">↩ ย้อนกลับ (Undo)</button>
+    </div>
+</div>
+
+<script>
+    let appData = JSON.parse(localStorage.getItem('flash_extreme_v4')) || { folders: [], decks: {} };
+    let currentDeckId = null, studyQueue = [], currentCardStreak = 0, isCurrentRunPerfect = true;
+    let historyStack = [];
+
+    function save() { localStorage.setItem('flash_extreme_v4', JSON.stringify(appData)); renderDashboard(); }
+
+    function toggleTheme() {
+        const theme = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }
+    if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
+
+    function getRankClass(val) {
+        if (val >= 20) return 'rank-20'; if (val >= 15) return 'rank-15'; if (val >= 10) return 'rank-10';
+        if (val >= 7) return 'rank-7'; if (val >= 5) return 'rank-5'; if (val >= 3) return 'rank-3';
+        if (val >= 2) return 'rank-2'; return '';
+    }
+
+    function renderDashboard() {
+        const list = document.getElementById('main-list');
+        list.innerHTML = '';
+
+        appData.folders.forEach((folder, fIdx) => {
+            let decksHtml = folder.decks.map(dName => renderDeckItem(dName)).join('');
+            list.innerHTML += `
+                <div class="folder-wrapper" ondragover="allowDrop(event)" ondrop="dropToFolder(event, ${fIdx})">
+                    <div class="folder-header" onclick="toggleFolder(${fIdx})">
+                        <span>${folder.isOpen ? '📂' : '📁'} ${folder.name}</span>
+                        <div>
+                            <button class="btn-edit" style="padding:4px 8px; font-size:10px;" onclick="event.stopPropagation(); renameFolder(${fIdx})">แก้ไข</button>
+                            <button class="btn-danger" style="padding:4px 8px; font-size:10px;" onclick="event.stopPropagation(); deleteFolder(${fIdx})">ลบ</button>
+                        </div>
+                    </div>
+                    <div class="folder-content ${folder.isOpen ? '' : 'hidden'}">${decksHtml}</div>
+                </div>`;
+        });
+
+        const inFolders = appData.folders.flatMap(f => f.decks);
+        const standalones = Object.keys(appData.decks).filter(d => !inFolders.includes(d));
+        list.innerHTML += `<div id="standalone-area" ondragover="allowDrop(event)" ondrop="dropToStandalone(event)">
+            <h3 style="margin: 15px 0 10px 5px">📦 ทั่วไป</h3>
+            ${standalones.map(dName => renderDeckItem(dName)).join('')}
+        </div>`;
+    }
+
+    function renderDeckItem(name) {
+        const deck = appData.decks[name];
+        if (!deck) return '';
+        const rank = getRankClass(deck.perfectStreak);
+        return `<div class="card-item" draggable="true" ondragstart="dragDeck(event, '${name}')">
+            <div><strong class="${rank}">${name}</strong><br><small>${deck.cards.length} ใบ | 🔥 Perfect: ${deck.perfectStreak}</small></div>
+            <div style="display:flex; gap:5px;">
+                <button class="btn-success" onclick="startStudy('${name}')">เรียน</button>
+                <button onclick="showEditor('${name}')" style="background:var(--border)">แก้</button>
+                <button class="btn-danger" onclick="deleteDeck('${name}')">ลบ</button>
+            </div>
+        </div>`;
+    }
+
+    function dragDeck(e, name) { e.dataTransfer.setData("deckName", name); e.target.classList.add('deck-dragging'); }
+    function allowDrop(e) { e.preventDefault(); }
+    function dropToFolder(e, fIdx) {
+        e.preventDefault();
+        const name = e.dataTransfer.getData("deckName");
+        appData.folders.forEach(f => f.decks = f.decks.filter(d => d !== name));
+        appData.folders[fIdx].decks.push(name);
+        save();
+    }
+    function dropToStandalone(e) {
+        e.preventDefault();
+        const name = e.dataTransfer.getData("deckName");
+        appData.folders.forEach(f => f.decks = f.decks.filter(d => d !== name));
+        save();
+    }
+
+    function startStudy(id) {
+        if (appData.decks[id].cards.length === 0) return alert("ไม่มีการ์ด!");
+        currentDeckId = id;
+        currentCardStreak = 0;
+        isCurrentRunPerfect = true;
+        historyStack = [];
+        initRound();
+        document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
+        document.getElementById('view-study').classList.remove('hidden');
+    }
+
+    function initRound() {
+        studyQueue = [...appData.decks[currentDeckId].cards].sort(() => Math.random() - 0.5);
+        showNextCard();
+    }
+
+    function showNextCard() {
+        if (studyQueue.length === 0) {
+            if (isCurrentRunPerfect) {
+                appData.decks[currentDeckId].perfectStreak++;
+                save();
+            }
+            // เริ่มรอบใหม่ด้วยการ Shuffle ใหม่เสมอ
+            isCurrentRunPerfect = true; 
+            historyStack = [];
+            initRound();
+            return;
+        }
+        document.getElementById('study-card').classList.remove('flipped');
+        updateStudyUI();
+        setTimeout(() => {
+            document.getElementById('study-front').innerText = studyQueue[0].q;
+            document.getElementById('study-back').innerText = studyQueue[0].a;
+        }, 150);
+    }
+
+    function answer(correct) {
+        const deck = appData.decks[currentDeckId];
+        // บันทึก History สำหรับ Undo (Deep Copy Queue)
+        historyStack.push({
+            queue: JSON.parse(JSON.stringify(studyQueue)),
+            streak: currentCardStreak,
+            perfect: deck.perfectStreak,
+            runPerfect: isCurrentRunPerfect
+        });
+
+        if (correct) {
+            currentCardStreak++;
+            studyQueue.shift(); // ตอบถูกให้นำออกจากคิว
+        } else {
+            currentCardStreak = 0;
+            isCurrentRunPerfect = false;
+            deck.perfectStreak = 0; 
+            save();
+            
+            // ตอบผิด: ดึงใบแรกไปต่อท้าย ไม่ลดจำนวนคิว
+            let wrongCard = studyQueue.shift();
+            studyQueue.push(wrongCard);
+        }
+        showNextCard();
+    }
+
+    function undo() {
+        if (historyStack.length === 0) return;
+        const lastState = historyStack.pop();
+        studyQueue = lastState.queue;
+        currentCardStreak = lastState.streak;
+        appData.decks[currentDeckId].perfectStreak = lastState.perfect;
+        isCurrentRunPerfect = lastState.runPerfect;
+        save();
+        showNextCard();
+    }
+
+    function updateStudyUI() {
+        const perf = appData.decks[currentDeckId].perfectStreak;
+        const rank = getRankClass(perf);
+        document.getElementById('stat-cards-left').innerText = studyQueue.length;
+        document.getElementById('stat-card-streak').innerText = currentCardStreak;
+        document.getElementById('stat-deck-streak').innerText = perf;
+        document.getElementById('stat-deck-streak').className = 'stat-value ' + rank;
+    }
+
+    function showEditor(id) {
+        currentDeckId = id;
+        document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
+        document.getElementById('view-editor').classList.remove('hidden');
+        document.getElementById('edit-deck-title').innerText = id;
+        renderCards();
+        document.getElementById('new-q').focus();
+    }
+
+    function renderCards() {
+        const list = document.getElementById('card-list'); list.innerHTML = '';
+        appData.decks[currentDeckId].cards.forEach((c, i) => {
+            list.innerHTML += `<div class="card-item" style="cursor:default">
+                <div style="flex:1">
+                    <div contenteditable="true" onblur="updateC(${i},'q',this.innerText)">${c.q}</div>
+                    <div contenteditable="true" onblur="updateC(${i},'a',this.innerText)" style="color:var(--text-sub)">${c.a}</div>
+                </div>
+                <button class="btn-danger" onclick="deleteCard(${i})">ลบ</button>
+            </div>`;
+        });
+    }
+
+    function updateC(i,f,v) { appData.decks[currentDeckId].cards[i][f] = v; save(); }
+    function deleteCard(i) { appData.decks[currentDeckId].cards.splice(i, 1); save(); renderCards(); }
+    function addCard() {
+        const q = document.getElementById('new-q'), a = document.getElementById('new-a');
+        if (q.value && a.value) {
+            appData.decks[currentDeckId].cards.push({ q: q.value, a: a.value });
+            save(); renderCards(); q.value = ''; a.value = '';
+        }
+    }
+
+    document.getElementById('new-q').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); document.getElementById('new-a').focus(); }});
+    document.getElementById('new-a').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); addCard(); document.getElementById('new-q').focus(); }});
+
+    function showDashboard() { document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden')); document.getElementById('view-dashboard').classList.remove('hidden'); renderDashboard(); }
+    function createFolder() { const n = prompt("ชื่อโฟลเดอร์:"); if(n) { appData.folders.push({name:n, decks:[], isOpen:true}); save(); }}
+    function renameFolder(i) { const n = prompt("แก้ไขชื่อโฟลเดอร์:", appData.folders[i].name); if(n) { appData.folders[i].name = n; save(); }}
+    function showCreateDeck() { const n = prompt("ชื่อหมวดหมู่:"); if(n && !appData.decks[n]) { appData.decks[n] = {cards:[], perfectStreak:0}; save(); }}
+    function deleteFolder(i) { if(confirm('ลบโฟลเดอร์?')) { appData.folders.splice(i,1); save(); }}
+    function deleteDeck(n) { if(confirm('ลบหมวดหมู่?')) { delete appData.decks[n]; appData.folders.forEach(f=>f.decks=f.decks.filter(d=>d!==n)); save(); }}
+    function toggleFolder(i) { appData.folders[i].isOpen = !appData.folders[i].isOpen; save(); }
+
+    renderDashboard();
+</script>
+</body>
+</html>
